@@ -57,6 +57,14 @@ def main():
     Creates a Google Calendar API service object and outputs a list of the next
     10 events on the user's calendar.
     """
+    print('*'*40)
+    print("Office Hours Calendar")
+    print('*'*40)
+    print("Welcome to OfficeHoursCalendar! With this tool, you can add all your office hours to your Google Calendar.")
+    print("This tool will create a separate calendar called \"Office Hours\" that will hold all your office hours, to avoid clogging up your normal calendar.")
+    print("\nPlease enter all times as 24 hour times of the format hh:mm")
+    input("This tool will first direct you to authorize Google Calendar to change your calendars. If you have already provided us with your credentials, it will continue on to allow you to add office hours. Press any key to proceed. ")
+
     credentials = get_credentials()
     http = credentials.authorize(httplib2.Http())
     service = discovery.build('calendar', 'v3', http=http)
@@ -91,25 +99,29 @@ def main():
     #print(calendar_id)
     while True:
         create_event(service, calendar_id)
-        cont = raw_input("More classes? y/n ")
+        cont = input("More classes? y/n ")
         if cont=='n':
             break
 
 def create_event(service, calendar_id):
 
     #get input on class, room #, time, day of week
-    class_name = raw_input("Class: ")
+    class_name = input("Class: ")
     while True:
         class_hours(service, calendar_id, class_name)
-        cont = raw_input("More office hours for " + class_name + "? y/n ")
+        cont = input("More office hours for " + class_name + "? y/n ")
         if cont=='n':
             break
 
 def class_hours(service, calendar_id, class_name):
-    start = raw_input("Start Time (24hr): ")
-    end = raw_input("End Time (24hr): ")
-    room = raw_input("Room: ")
-    weekdays = raw_input("Days of week: (SMTWRFA) ")
+    start = input("Start Time (24hr): ")
+    end = input("End Time (24hr): ")
+    room = input("Room: ")
+    weekdays = input("Days of week: (SMTWRFA) ")
+    if ':' not in start:
+    	start = start + ":00"
+    if ':' not in end:
+    	end = end + ":00"
 
     days_of_week = list(weekdays)
     days_of_week = [day.replace('M','MO') for day in days_of_week]
@@ -121,18 +133,18 @@ def class_hours(service, calendar_id, class_name):
     days_of_week = [day.replace('A','SA') for day in days_of_week]
     
     event = {
-      'summary': class_name + " Office Hours", #name
+      'summary': class_name + " OH", #name
       'location': room, #location
       'start': {
-        'dateTime': '2017-09-06T' + start + ':00-04:00', #start date/time
+        'dateTime': '2018-09-06T' + start + ':00-04:00', #start date/time
         'timeZone': 'America/New_York',
       },
       'end': {
-        'dateTime': '2017-09-06T' + end + ':00-04:00', #end date/time
+        'dateTime': '2018-09-06T' + end + ':00-04:00', #end date/time
         'timeZone': 'America/New_York',
       },
       'recurrence': [
-        'RRULE:FREQ=WEEKLY;UNTIL=20171217T000000Z;WKST=SU;BYDAY=' + str(days_of_week)[1:-1].replace(' ','').replace('\'', '') #need to generalize start and end date
+        'RRULE:FREQ=WEEKLY;UNTIL=20181214T000000Z;WKST=SU;BYDAY=' + str(days_of_week)[1:-1].replace(' ','').replace('\'', '') #need to generalize start and end date
       ],
       'reminders': {
         'useDefault': True
